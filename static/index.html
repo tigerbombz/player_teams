@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='myApp'>
+<head>
+  <meta charset="UTF-8">
+  <title>Players and Teams</title>
+  <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js'/></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+
+
+
+  <script>
+  var myApp = angular.module('myApp', ['ngRoute'] );
+
+  //CONFIG ROUTES
+  myApp.config(function ($routeProvider){
+    $routeProvider
+    .when('/', {
+      templateUrl: 'partials/players.html'
+    })
+    .when('/partial2', {
+      templateUrl: 'partials/teams.html'
+    })
+    .when('/partial3', {
+      templateUrl: 'partials/associations.html'
+    })
+    .otherwise({
+      redirectTo: '/'
+    });
+  });
+
+
+
+  //PLAYER FACTORY
+  myApp.factory('playerFactory', function (){
+    var players = [];
+    var factory = {};
+
+    factory.getPlayers = function (callback){
+      callback(players);
+    }
+
+
+    factory.addPlayer = function (newPlayer, callback){
+      players.push(newPlayer);
+      callback(players);
+    }
+
+    factory.removePlayer = function(player,callback){
+      players.splice(players.indexOf(player), 1);
+      callback(players)
+    }
+  return factory
+  })
+
+  //TEAMS FACTORY
+  myApp.factory('teamFactory', function (){
+    var teams = [];
+    var associations = [];
+    var factory = {};
+
+    factory.getTeams = function (callback){
+      callback(teams);
+    }
+
+    factory.addTeam = function (newTeam, callback){
+      teams.push(newTeam);
+      callback(teams);
+    }
+
+    factory.removeTeam = function (team, callback){
+      teams.splice(teams.indexOf(team), 1);
+      callback(teams);
+    }
+
+    factory.addAssociation = function (association, callback){
+      associations.push(association);
+      callback(associations);
+    }
+
+    factory.removeAssociation = function (a, callback){
+      associations.splice(associations.indexOf(a), 1);
+      callback(associations);
+    }
+
+  return factory
+  })
+
+
+
+
+
+  //PLAYER CONTROLLER
+  myApp.controller('playersController', function ($scope, playerFactory){
+    $scope.getPlayers = function (){
+      playerFactory.getPlayers(function(players){
+        $scope.players = players
+        console.log($scope.players);
+      })
+    }
+
+    $scope.getPlayers()
+
+    $scope.addPlayer = function (){
+      playerFactory.addPlayer($scope.newPlayer, function(players){
+        console.log(players);
+        $scope.newPlayer= {};
+        $scope.players = players;
+      });
+    };
+
+    $scope.removePlayer = function (player){
+      playerFactory.removePlayer(player, function(players){
+        $scope.players = players
+      });
+    }
+
+  })
+
+  //TEAM CONTROLLER
+  myApp.controller('teamsController', function ($scope, teamFactory){
+    $scope.getTeams = function (){
+      teamFactory.getTeams(function(teams){
+        $scope.teams = teams
+      })
+    }
+
+    $scope.getTeams()
+
+
+    $scope.addTeam = function (){
+      teamFactory.addTeam($scope.newTeam, function(teams){
+        $scope.newTeam = {};
+        $scope.teams = teams;
+      });
+    };
+
+    $scope.removeTeam = function (team){
+      teamFactory.removeTeam(team, function(teams){
+        $scope.teams = teams
+      });
+    };
+
+  })
+
+  //ASSOCIATIONS CONTROLLER
+  myApp.controller('associationsController', function ($scope, teamFactory, playerFactory){
+    $scope.getPlayers = function (){
+      playerFactory.getPlayers(function(players){
+        $scope.players = players
+      })
+    }
+    $scope.getTeams = function (){
+      teamFactory.getTeams(function(teams){
+        $scope.teams = teams
+      })
+    }
+
+    $scope.getPlayers();
+    $scope.getTeams();
+
+
+    $scope.addAssociation = function (){
+      teamFactory.addAssociation($scope.newAssociation, function(associations){
+        $scope.newAssociation = {};
+        $scope.associations = associations
+      })
+    }
+
+    $scope.removeAssociation = function (a){
+      teamFactory.removeAssociation(a, function(associations){
+        $scope.associations = associations
+      })
+    }
+
+  })//END
+
+
+
+
+  </script>
+</head>
+<body>
+  <div ng-app='myApp'>
+    <a href="#/">Player List</a> | <a href="#/partial2">Team List</a> | <a href="#/partial3">Associations</a>
+    <div ng-view=''></div>
+  </div>
+</body>
+</html>
